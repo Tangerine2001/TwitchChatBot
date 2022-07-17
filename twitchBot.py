@@ -1,6 +1,7 @@
 import os
 
 from twitchio.ext import commands
+from twitchio.ext.commands import Context
 from dbconnection import DB
 from datetime import datetime
 
@@ -11,11 +12,22 @@ class Bot(commands.Bot):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         super().__init__(token=os.environ['TMI_TOKEN'], prefix=os.environ['BOT_PREFIX'], initial_channels=[os.environ['CHANNEL']])
         self.db = DB()
+        self.allUsers = self.db.getAllCrossers()
+
+        # Close connection after init. Update db using a Routine
+        self.db.close()
 
     async def event_ready(self):
         # We are logged in and ready to chat and use commands...
         print(f'Logged in as | {self.nick}')
         print(f'User id is | {self.user_id}')
+
+    async def event_command_error(self, context: commands.Context, error: Exception):
+        print('#------------------------------------#')
+        print('#-     Command Exception Occurred   -#')
+        print('#------------------------------------#')
+        print(context.message.content)
+        print(error)
 
     @commands.command()
     async def hello(self, ctx: commands.Context):
