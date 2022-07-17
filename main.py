@@ -1,3 +1,5 @@
-from twitchio.ext import commands
-import os
+import signal
+from twitchBot import Bot
 
+bot = Bot()
+bot.run()
