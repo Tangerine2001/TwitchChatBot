@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 twitchio = "*"
 mysql-connector-python = "*"
+pyslobs = "*"
+pyqt5 = "*"
 
 [dev-packages]
 

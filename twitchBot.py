@@ -1,18 +1,33 @@
 import os
-
-from twitchio import Message
-from twitchio.ext import commands
-from twitchio.ext.commands import Context
-from dbconnection import DB
+import re
 from datetime import datetime
 
+from twitchio import Message, Channel, User, Chatter
+from twitchio.ext import commands
+from twitchio.ext.commands import Command
 
-class Bot(commands.Bot):
+import helper
+from Cogs.commandsCog import CommandsCog
+from dbconnection import DB
+from exceptions import GlobalCooldownExceededException
+from helper import sample
+
+
+class TwitchBot(commands.Bot):
     def __init__(self):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         super().__init__(token=os.environ['TMI_TOKEN'], prefix=os.environ['BOT_PREFIX'],
                          initial_channels=[os.environ['CHANNEL']])
-        # self.db = DB()
+        self.db = DB()
+        self.activeCrossers = []
+        self.currentMessage = None
+
+        self.allRanks = helper.ranks
+        self.allCommands = helper.commands
+        self.variableMappings = helper.createVariableMappings(self)
+
+        # self.add_cog(CommandsCog(self))
+        # self.add_command(Command('top', helper.commands['top']))
         # self.allUsers = self.db.getAllCrossers()
         #
         # # Close connection after init. Update db using a Routine
@@ -20,36 +35,88 @@ class Bot(commands.Bot):
 
     async def event_ready(self):
         # We are logged in and ready to chat and use commands...
-        print(f'Logged in as | {self.nick}')
-        print(f'User id is | {self.user_id}')
+        print(f'\nLogged in as | {self.nick}')
+        print(f'User id is   | {self.user_id}\n')
 
-    async def event_command_error(self, context: commands.Context, error: Exception):
-        print('#------------------------------------#')
-        print('#-     Command Exception Occurred   -#')
-        print('#------------------------------------#')
-        print(context.message.content)
-        print(error)
+    # async def event_command_error(self, context: commands.Context, error: Exception):
+    #     print('##----------------------------------##')
+    #     print('#      Command Exception Occurred    #')
+    #     print('##----------------------------------##')
+    #     print(context.message.content)
+    #     print(error)
 
-    @commands.command()
-    async def hello(self, ctx: commands.Context):
-        # Send a hello back!
-        await ctx.send(f'Hello {ctx.author.name}!')
+    async def event_message(self, message: Message) -> None:
+        self.currentMessage = message
+        # if message.author:
+        #     await self.checkUserIsCrosser(self.connected_channels[0], message.author, message)
+        if message.content[0] == '!':
+            await self.handle_command(message)
 
-    @commands.command()
-    async def top(self, ctx: commands.Context, *args):
-        # self.db.insert(tableName='users', values=('test3', 100, 'rank1', 0.1, datetime.now(), datetime.now()))
-        # leaderboardRank = 1
-        if len(args) > 0:
-            try:
-                defaultAmount = int(args[0])
-            except ValueError as e:
-                defaultAmount = 5
-                print(e)
+    async def handle_command(self, message: Message):
+        cmdString = message.content[1:]
+
+        if len(cmdString) < 1:
+            print('Hey bud, why just an exclamation mark?')
+            return
+
+        # Define the commands and respective args
+        allArgs = cmdString.split()
+        cmd = self.allCommands[allArgs[0]]
+        args = (message,) + tuple(allArgs[1:]) if len(allArgs) > 1 else (message,)
+        print(f'Args: {args}')
+
+        # Cooldown check
+        cdCheck = self.db.checkCooldowns(cmd, message)
+        if cdCheck is not None:
+            if cdCheck is GlobalCooldownExceededException:
+                inputs = cmd['Global Cooldown Exceptions']
+            else:
+                inputs = cmd['User Cooldown Exceptions']
         else:
-            defaultAmount = 5
-        leaderboardText = f'Arguments: {", ".join(args)}'
+            inputs = cmd['Outputs']
+        await message.channel.send(sample(helper.replaceVariables(inputs, cmd, args, self.variableMappings)))
 
-        # for (user_id, username, currency, rank_name, hours, first_join, last_join) in self.db.getLeaderboard():
-        #     leaderboardText += f'#{leaderboardRank} - [{rank_name}] {username} with {currency} points and {hours} active hours\n'
-        #     leaderboardRank += 1
-        await ctx.send(leaderboardText)
+    async def event_join(self, channel: Channel, user: Chatter):
+        if user.name.lower() == os.environ['BOT_NICKNAME'].lower():
+            await channel.send(f'/me has arisen.')
+        else:
+            await self.checkUserIsCrosser(channel, user)
+
+    async def checkUserIsCrosser(self, channel: Channel, user: Chatter, msg: Message = None):
+        joinedUser = await user.user()
+        crosser = self.db.getCrosser(joinedUser)
+
+        if not crosser:
+            print(f'{joinedUser.display_name} has joined as a first-timer')
+            await channel.send(f'Welcome first-timer: {joinedUser.display_name}')
+            self.db.insert(tableName='users', values=(joinedUser.id, joinedUser.name, datetime.now()))
+            self.activeCrossers.append(self.db.getCrosser(joinedUser))
+        elif crosser not in self.activeCrossers:
+            print(f'{joinedUser.display_name} has joined!')
+            # if user.is_subscriber:
+            #     pass
+            #     await channel.send(f"Welcome back subscriber: {joinedUser.display_name}. I'm glad to see that you're back!")
+            # else:
+            #     pass
+            #     await channel.send(f"Glad you're back {joinedUser.display_name}!")
+            self.db.update(tableName='users', pKeyValue=joinedUser.name)
+            self.activeCrossers.append(self.db.getCrosser(joinedUser))
+        else:
+            pass
+            # if msg:
+            #     print(f'{joinedUser.display_name}: {msg.content}')
+
+        # joinedUser = Crosser(await user.user())
+        # if user.name.lower() == os.environ['BOT_NICKNAME'].lower():
+        #     await channel.send(f'/me has arisen.')
+        # elif user not in self.allUsers:
+        #     await channel.send(f'Welcome first-timer: {user.name}')
+
+    async def event_part(self, user: User):
+        if user.name.lower() == os.environ['BOT_NICKNAME'].lower():
+            await self.connected_channels[0].send(f'/me is now sleeping. Disturbing him will do nothing')
+        else:
+            await self.connected_channels[0].send(f"We're another soldier down. {user.name} has left.")
+
+    def getUserName(self, cmd: dict, args: tuple):
+        return self.currentMessage.author.name

@@ -1,0 +1,33 @@
+{
+    "top":
+    {
+        "Command ID": 1,
+        "Command Input": "top",
+        "Command Tips": [
+          "!top",
+          "!top {amount}"
+        ],
+        "Description": "View the top {amount} users who have the most currency. Default for {amount} is 5, unless a valid number between 1-10 is specified.",
+        "Global Cooldown": 5,
+        "User Cooldown": 10,
+        "Outputs": ["${leaderboard}"],
+        "Global Cooldown Exceptions": ["Chill... someone just called this command. Read it, I'll say the same thing"],
+        "User Cooldown Exceptions": ["Bro, you got somewhere to be? Wait like ${userCooldownDiff} seconds then try again."]
+    },
+
+    "points":
+    {
+        "Command ID": 2,
+        "Command Input": "points",
+        "Command Tips": [
+          "!points",
+          "!currency"
+        ],
+        "Description": "Find out how rich you are!",
+        "Global Cooldown": 5,
+        "User Cooldown": 10,
+        "Outputs": ["${userName}, you have ${points}"],
+        "Global Cooldown Exceptions": ["Chill... someone just called this command. Read it, I'll say the same thing"],
+        "User Cooldown Exceptions": ["Bro, you got somewhere to be? Wait like ${userCooldownDiff} seconds then try again."]
+    }
+}

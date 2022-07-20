@@ -1,9 +1,11 @@
 from collections import Callable
+
 from twitchio.ext import commands
+from datetime import datetime
 
 
 class CustomCommand(commands.Command):
-    def __init__(self, commandInput: str, description: str, globalCD: int, userCD: int, permissionRank: str, func: Callable, **attrs):
+    def __init__(self, commandInput: str, description: str, globalCD: int, userCD: int, permissionRank: int, func: Callable, **attrs):
         self.description = description
         self.globalCD = globalCD
         self.userCD = userCD
