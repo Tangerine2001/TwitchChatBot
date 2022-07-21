@@ -14,16 +14,17 @@ from helper import sample
 
 
 class TwitchBot(commands.Bot):
-    def __init__(self):
+    def __init__(self, lilCrossBot):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         super().__init__(token=os.environ['TMI_TOKEN'], prefix=os.environ['BOT_PREFIX'],
                          initial_channels=[os.environ['CHANNEL']])
         self.db = DB()
         self.activeCrossers = []
         self.currentMessage = None
+        self.lilCrossBot = lilCrossBot
 
         self.allRanks = helper.ranks
-        self.allCommands = helper.commands
+        self.allCommands = self.lilCrossBot.commands
         self.variableMappings = helper.createVariableMappings(self)
 
         # self.add_cog(CommandsCog(self))
@@ -47,8 +48,9 @@ class TwitchBot(commands.Bot):
 
     async def event_message(self, message: Message) -> None:
         self.currentMessage = message
-        # if message.author:
-        #     await self.checkUserIsCrosser(self.connected_channels[0], message.author, message)
+        if message.author:
+            self.lilCrossBot.receivedMessage(message)
+            # await self.checkUserIsCrosser(self.connected_channels[0], message.author, message)
         if message.content[0] == '!':
             await self.handle_command(message)
 

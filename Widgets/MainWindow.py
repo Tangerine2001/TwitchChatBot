@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QRect
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QListWidget, QStackedWidget, QLabel
+from twitchio import Message
 
 import helper
 from Widgets.ChatWidget import ChatWidget
@@ -10,7 +11,6 @@ qPushButtonStyle = """
 QPushButton {
     border-radius: 0;
     background-color: #4287f5;
-    transition: background-color 1.0s ease;
 }
 
 QPushButton:hover {
@@ -21,14 +21,15 @@ QPushButton:hover {
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, lilCrossBot):
         super().__init__()
         self.setObjectName("MainWindow")
         self.setEnabled(True)
         self.resize(800, 599)
+        self.lilCrossBot = lilCrossBot
 
         self.chatWidget = ChatWidget()
-        self.commandsTable = CommandsTable(helper.commands)
+        self.commandsTable = CommandsTable(self.lilCrossBot.commands)
         # self.chatWidget.setStyleSheet("alternate-background-color: rgb(57, 57, 57);\n"
         #                               "background-color: rgb(115, 115, 115);\n"
         #                               "font-color: white;")

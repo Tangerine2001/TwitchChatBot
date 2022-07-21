@@ -36,10 +36,10 @@ commands = json.load(open('Json/commands.json'))
 
 def createVariableMappings(bot):
     return {
-        '${leaderboard}': bot.db.getLeaderboard,
-        '${userCooldownDiff}': bot.db.getUserCooldownDiff,
-        '${points}': bot.db.getPoints,
-        '${userName}': bot.getUserName
+        '${leaderboard}':       bot.db.getLeaderboard,
+        '${userCooldownDiff}':  bot.db.getUserCooldownDiff,
+        '${points}':            bot.db.getPoints,
+        '${userName}':          bot.getUserName
     }
 
 

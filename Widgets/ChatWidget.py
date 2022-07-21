@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget, QListWidget, QLabel, QListWidgetItem
+from twitchio import Message
 
 
 class ChatWidget(QListWidget):
@@ -10,16 +11,11 @@ class ChatWidget(QListWidget):
         self.setGeometry(0, 0, 741, 611)
         self.setStyleSheet("alternate-background-color: rgb(57, 57, 57);\n"
                            "background-color: rgb(115, 115, 115);\n"
-                           "font-color: white;")
+                           "color: white;")
         self.setAlternatingRowColors(True)
 
-        self.addItem(QListWidgetItem('test Item'))
-        self.addItem(QListWidgetItem('test Item'))
-        self.addItem(QListWidgetItem('test Item'))
-        self.addItem(QListWidgetItem('test Item'))
-        self.addItem(QListWidgetItem('test Item'))
-
-
+    def addMessage(self, message: Message):
+        self.addItem(QListWidgetItem(f'{message.author.name}: {message.content}'))
         # self.show()
 
     #     self.retranslateUi(self)

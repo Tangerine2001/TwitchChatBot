@@ -9,28 +9,42 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
+
+styleSheet = """
+QTableWidget {
+    background-color: rgb(73, 75, 73);
+    alternate-background-color: rgb(112, 112, 112);
+    color: white;
+}
+
+QHeaderView:section { 
+    background-color: cornflowerblue 
+}
+
+"""
 
 
 class CommandsTable(QTableWidget):
-    def __init__(self, commands: list[dict] = None):
+    def __init__(self, commands: dict = None):
         super().__init__()
         if commands is None:
             raise ValueError("You're supposed to pass in a list of dicts my guy")
-        self.setStyleSheet("background-color: rgb(73, 75, 73); "
-                           "alternate-background-color: rgb(112, 112, 112);")
+        self.setStyleSheet(styleSheet)
         self.setRowCount(1)
-        self.setColumnCount(len(commands[0].keys()))
+        self.setColumnCount(len(commands['top'].keys()))
 
         self.columnIndices = {}
         index = 0
-        for col in list(commands[0].keys()):
+        for col in list(commands['top'].keys()):
             self.setHorizontalHeaderItem(index, QTableWidgetItem(col))
+
             self.columnIndices[col] = index
             index += 1
 
-        for cmd in commands:
-            self.addItem(cmd)
+        for col in list(commands.keys()):
+            self.addItem(commands[col])
 
     def addItem(self, cmd: dict):
         for col in cmd.keys():
