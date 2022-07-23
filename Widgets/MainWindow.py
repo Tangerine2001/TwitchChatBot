@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QRect
+from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QListWidget, QStackedWidget, QLabel
 from twitchio import Message
 
@@ -21,12 +21,16 @@ QPushButton:hover {
 
 
 class MainWindow(QMainWindow):
+    keyPressed = QtCore.pyqtSignal(int)
+
     def __init__(self, lilCrossBot):
         super().__init__()
         self.setObjectName("MainWindow")
         self.setEnabled(True)
         self.resize(800, 599)
         self.lilCrossBot = lilCrossBot
+
+        self.currIndex = 0
 
         self.chatWidget = ChatWidget()
         self.commandsTable = CommandsTable(self.lilCrossBot.commands)
@@ -72,6 +76,7 @@ class MainWindow(QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def setContentWidget(self, index: int):
+        self.currIndex = index
         self.contentWidget.setCurrentIndex(index)
 
     def retranslateUi(self, MainWindow):
@@ -81,3 +86,7 @@ class MainWindow(QMainWindow):
         self.commandsButton.setText(_translate("MainWindow", "Commands"))
         self.rulesButton.setText(_translate("MainWindow", "Rules"))
         self.usersButton.setText(_translate("MainWindow", "Users"))
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Return and self.currIndex == 0:
+            self.chatWidget.sendMsg(self.lilCrossBot)

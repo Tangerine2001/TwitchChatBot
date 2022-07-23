@@ -32,31 +32,20 @@ ranks = {
 }
 
 commands = json.load(open('Json/commands.json'))
-
-
-def createVariableMappings(bot):
-    return {
-        '${leaderboard}':       bot.db.getLeaderboard,
-        '${userCooldownDiff}':  bot.db.getUserCooldownDiff,
-        '${points}':            bot.db.getPoints,
-        '${userName}':          bot.getUserName
-    }
+exceptions = json.load(open('Json/cooldownExceptions.json'))
 
 
 def sample(iterable):
     return iterable[random.randint(0, len(iterable) - 1)]
 
 
-def replaceVariables(iterable: list[str], cmd: dict, args: tuple, variablesMappings: dict) -> list[str]:
-    outputStr = []
+def replaceVariables(inputStr: str, cmd: dict, args: tuple, variablesMappings: dict) -> str:
     rePattern = '\$\{.*?\}'
-    for inputStr in iterable:
-        patternMatchesSet = set()
-        for patternMatch in re.findall(rePattern, inputStr):
-            patternMatchesSet.add(patternMatch)
+    patternMatchesSet = set()
+    for patternMatch in re.findall(rePattern, inputStr):
+        patternMatchesSet.add(patternMatch)
 
-        if len(patternMatchesSet) > 0:
-            for patternMatch in patternMatchesSet:
-                inputStr = inputStr.replace(patternMatch, variablesMappings[patternMatch](cmd, args))
-        outputStr.append(inputStr)
-    return outputStr
+    if len(patternMatchesSet) > 0:
+        for patternMatch in patternMatchesSet:
+            inputStr = inputStr.replace(patternMatch, variablesMappings[patternMatch](cmd, args))
+    return inputStr
