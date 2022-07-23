@@ -10,9 +10,7 @@
         "Description": "View the top {amount} users who have the most currency. Default for {amount} is 5, unless a valid number between 1-10 is specified.",
         "Global Cooldown": 5,
         "User Cooldown": 10,
-        "Outputs": ["${leaderboard}"],
-        "Global Cooldown Exceptions": ["Chill... someone just called this command. Read it, I'll say the same thing"],
-        "User Cooldown Exceptions": ["Bro, you got somewhere to be? Wait like ${userCooldownDiff} seconds then try again."]
+        "Outputs": ["${leaderboard}"]
     },
 
     "points":
@@ -26,8 +24,6 @@
         "Description": "Find out how rich you are!",
         "Global Cooldown": 5,
         "User Cooldown": 10,
-        "Outputs": ["${userName}, you have ${points}"],
-        "Global Cooldown Exceptions": ["Chill... someone just called this command. Read it, I'll say the same thing"],
-        "User Cooldown Exceptions": ["Bro, you got somewhere to be? Wait like ${userCooldownDiff} seconds then try again."]
+        "Outputs": ["${userName}, you have ${points}"]
     }
 }

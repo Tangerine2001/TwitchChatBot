@@ -1,8 +1,9 @@
+import asyncio
 import sys
 
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 from PyQt5.QtWidgets import QApplication
-from twitchio import Message
+from twitchio import Message, Channel
 
 import helper
 from Widgets.MainWindow import MainWindow
@@ -42,14 +43,24 @@ class LilCrossBot:
         # Start the gathering process
         self.twitchBotThread.start()
 
+        self.channel = None
+        self.loop = None
+
         self.gui = MainWindow(self)
         self.gui.show()
+
+    def sendMessage(self, msg: str):
+        self.loop.create_task(self.channel.send(msg))
+
+    def setChannel(self, channel: Channel):
+        self.channel = channel
+        self.loop = asyncio.get_event_loop()
 
     def receivedMessage(self, message: Message):
         self.gui.chatWidget.addMessage(message)
 
     def saveChanges(self):
-        self.twitchBot.db.commit()
+        # self.twitchBot.db.commit()
         print('Changes saved!')
 
     def onClose(self):

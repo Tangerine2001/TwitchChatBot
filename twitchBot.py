@@ -7,10 +7,10 @@ from twitchio.ext import commands
 from twitchio.ext.commands import Command
 
 import helper
-from Cogs.commandsCog import CommandsCog
 from dbconnection import DB
 from exceptions import GlobalCooldownExceededException
 from helper import sample
+from variableMappingsHandler import VariableMappingHandler
 
 
 class TwitchBot(commands.Bot):
@@ -25,19 +25,18 @@ class TwitchBot(commands.Bot):
 
         self.allRanks = helper.ranks
         self.allCommands = self.lilCrossBot.commands
-        self.variableMappings = helper.createVariableMappings(self)
+        self.variableMapper = VariableMappingHandler(self)
 
-        # self.add_cog(CommandsCog(self))
-        # self.add_command(Command('top', helper.commands['top']))
         # self.allUsers = self.db.getAllCrossers()
-        #
-        # # Close connection after init. Update db using a Routine
-        # self.db.close()
+
+        # Close connection after init. Update db using a Routine
+        self.db.close()
 
     async def event_ready(self):
         # We are logged in and ready to chat and use commands...
         print(f'\nLogged in as | {self.nick}')
         print(f'User id is   | {self.user_id}\n')
+        self.lilCrossBot.setChannel(self.get_channel(os.environ['CHANNEL']))
 
     # async def event_command_error(self, context: commands.Context, error: Exception):
     #     print('##----------------------------------##')
@@ -71,12 +70,13 @@ class TwitchBot(commands.Bot):
         cdCheck = self.db.checkCooldowns(cmd, message)
         if cdCheck is not None:
             if cdCheck is GlobalCooldownExceededException:
-                inputs = cmd['Global Cooldown Exceptions']
+                inputStr = sample(helper.exceptions['Global Cooldown Exceptions'])
             else:
-                inputs = cmd['User Cooldown Exceptions']
+                inputStr = sample(helper.exceptions['User Cooldown Exceptions'])
         else:
-            inputs = cmd['Outputs']
-        await message.channel.send(sample(helper.replaceVariables(inputs, cmd, args, self.variableMappings)))
+            inputStr = sample(cmd['Outputs'])
+        await message.channel.send(self.variableMapper.getMapping(inputStr, cmd, args))
+        # await message.channel.send(helper.replaceVariables(inputStr, cmd, args, self.variableMappings))
 
     async def event_join(self, channel: Channel, user: Chatter):
         if user.name.lower() == os.environ['BOT_NICKNAME'].lower():

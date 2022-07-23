@@ -128,6 +128,13 @@ class DB:
 
         return str(int(ret[0][0]))
 
+    def execute(self, query, values=None):
+        if values:
+            self.cur.execute(query, values)
+        else:
+            self.cur.execute(query)
+        return self.cur
+
     def connect(self):
         self.conn.connect()
 
