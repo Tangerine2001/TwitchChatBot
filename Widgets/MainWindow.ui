@@ -117,7 +117,7 @@ QPushButton:hover {
      <string>Users</string>
     </property>
    </widget>
-   <widget class="QWidget" name="contentWidget" native="true">
+   <widget class="QStackedWidget" name="stackedWidget">
     <property name="geometry">
      <rect>
       <x>60</x>
@@ -126,6 +126,29 @@ QPushButton:hover {
       <height>601</height>
      </rect>
     </property>
+    <widget class="QWidget" name="page">
+     <widget class="QListWidget" name="listWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>731</width>
+        <height>601</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QTableView" name="tableView">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>731</width>
+        <height>601</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_2"/>
    </widget>
   </widget>
  </widget>
