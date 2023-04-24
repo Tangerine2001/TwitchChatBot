@@ -87,47 +87,6 @@ class DB:
             ret = Crosser(user, **dict(zip(columns, ret[0])))
             return ret
 
-    def getLeaderboard(self, cmd: str, args: tuple) -> str:
-        try:
-            defaultAmount = int(args[1])
-        except IndexError or ValueError:
-            defaultAmount = 5
-        query = f'SELECT * FROM twitch.users ORDER BY currency LIMIT {defaultAmount}'
-
-        self.cur.execute(query)
-        ret = self.cur.fetchall()
-
-        leaderboardRank = 1
-        leaderboardText = ''
-        for (user_id, username, currency, rank_id, hours, first_join, last_join) in ret:
-            leaderboardText += f'#{leaderboardRank} - [{helper.ranks[rank_id]}] {username} with {currency} ' \
-                               f'points and {hours} active hours\n'
-            leaderboardRank += 1
-
-        return leaderboardText
-
-    def getUserCooldownDiff(self, cmd: dict, args: tuple) -> str:
-        commandId = cmd['Command ID']
-        userId = args[0].author.id
-
-        query = f"SELECT call_time FROM twitch.called_commands WHERE command_id = {commandId} " \
-                f"AND user_id = {userId} ORDER BY call_time DESC"
-        self.cur.execute(query)
-        ret = self.cur.fetchall()
-        diff = datetime.now().timestamp() - ret[0][0].timestamp()
-
-        return f'{diff: 0.1f}'
-
-    def getPoints(self, cmd: dict, args: tuple) -> str:
-        userId = args[0].author.id
-
-        query = f"SELECT currency FROM twitch.users WHERE user_id = {userId}"
-
-        self.cur.execute(query)
-        ret = self.cur.fetchall()
-
-        return str(int(ret[0][0]))
-
     def execute(self, query, values=None):
         if values:
             self.cur.execute(query, values)

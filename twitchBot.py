@@ -1,15 +1,14 @@
 import os
 import re
-from datetime import datetime
 
 from twitchio import Message, Channel, User, Chatter
 from twitchio.ext import commands
 from twitchio.ext.commands import Command
 
 import helper
-from dbconnection import DB
+from db import DB
 from exceptions import GlobalCooldownExceededException
-from helper import sample
+from helper import sample, now
 from variableMappingsHandler import VariableMappingHandler
 
 
@@ -30,13 +29,13 @@ class TwitchBot(commands.Bot):
         # self.allUsers = self.db.getAllCrossers()
 
         # Close connection after init. Update db using a Routine
-        self.db.close()
+        # self.db.close()
 
     async def event_ready(self):
         # We are logged in and ready to chat and use commands...
         print(f'\nLogged in as | {self.nick}')
         print(f'User id is   | {self.user_id}\n')
-        self.lilCrossBot.setChannel(self.get_channel(os.environ['CHANNEL']))
+        self.lilCrossBot.setChannel(self.get_channel(os.environ['CHANNEL'][1:]))
 
     # async def event_command_error(self, context: commands.Context, error: Exception):
     #     print('##----------------------------------##')
@@ -49,8 +48,8 @@ class TwitchBot(commands.Bot):
         self.currentMessage = message
         if message.author:
             self.lilCrossBot.receivedMessage(message)
-            # await self.checkUserIsCrosser(self.connected_channels[0], message.author, message)
-        if message.content[0] == '!':
+            await self.checkUserIsCrosser(self.connected_channels[0], message.author, message)
+        if message.content[0] == '!' and message.author:
             await self.handle_command(message)
 
     async def handle_command(self, message: Message):
@@ -64,7 +63,6 @@ class TwitchBot(commands.Bot):
         allArgs = cmdString.split()
         cmd = self.allCommands[allArgs[0]]
         args = (message,) + tuple(allArgs[1:]) if len(allArgs) > 1 else (message,)
-        print(f'Args: {args}')
 
         # Cooldown check
         cdCheck = self.db.checkCooldowns(cmd, message)
@@ -91,7 +89,7 @@ class TwitchBot(commands.Bot):
         if not crosser:
             print(f'{joinedUser.display_name} has joined as a first-timer')
             await channel.send(f'Welcome first-timer: {joinedUser.display_name}')
-            self.db.insert(tableName='users', values=(joinedUser.id, joinedUser.name, datetime.now()))
+            self.db.insert(tableName='users', values=(joinedUser.id, joinedUser.name, now()))
             self.activeCrossers.append(self.db.getCrosser(joinedUser))
         elif crosser not in self.activeCrossers:
             print(f'{joinedUser.display_name} has joined!')
@@ -119,6 +117,3 @@ class TwitchBot(commands.Bot):
             await self.connected_channels[0].send(f'/me is now sleeping. Disturbing him will do nothing')
         else:
             await self.connected_channels[0].send(f"We're another soldier down. {user.name} has left.")
-
-    def getUserName(self, cmd: dict, args: tuple):
-        return self.currentMessage.author.name

@@ -23,6 +23,8 @@
 import json
 import random
 import re
+from datetime import datetime
+from pytz import timezone
 
 ranks = {
     1: 'Crosser',
@@ -39,13 +41,5 @@ def sample(iterable):
     return iterable[random.randint(0, len(iterable) - 1)]
 
 
-def replaceVariables(inputStr: str, cmd: dict, args: tuple, variablesMappings: dict) -> str:
-    rePattern = '\$\{.*?\}'
-    patternMatchesSet = set()
-    for patternMatch in re.findall(rePattern, inputStr):
-        patternMatchesSet.add(patternMatch)
-
-    if len(patternMatchesSet) > 0:
-        for patternMatch in patternMatchesSet:
-            inputStr = inputStr.replace(patternMatch, variablesMappings[patternMatch](cmd, args))
-    return inputStr
+def now():
+    return datetime.now(timezone('US/Eastern'))

@@ -60,7 +60,7 @@ class LilCrossBot:
         self.gui.chatWidget.addMessage(message)
 
     def saveChanges(self):
-        # self.twitchBot.db.commit()
+        self.twitchBot.db.commit()
         print('Changes saved!')
 
     def onClose(self):

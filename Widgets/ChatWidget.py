@@ -30,6 +30,10 @@ QLineEdit {
 QLineEdit:focus {
     border: 0.5px solid blue;
 }
+
+QLineEdit:hover {
+    border: 0.5px solid pink;
+}
 """
 
 
@@ -43,7 +47,7 @@ class ChatWidget(QListWidget):
         self.setAlternatingRowColors(True)
 
         self.inputMsg = QLineEdit(self)
-        self.inputMsg.setStyleSheet(qLineEditStyleSheet)
+        # self.inputMsg.setStyleSheet(qLineEditStyleSheet)
         self.inputMsg.setGeometry(10, 545, 571, 47)
         # self.inputMsg.setGeometry(10, 560, 571, 45)
 
@@ -79,5 +83,5 @@ class ChatMessage(QListWidgetItem):
             self.setText(f'{message.author.name}: {message.content}')
         # This means that we executed the addMessage ourselves
         else:
-            self.setText(f'lil_stubbs_test: {message}')
+            self.setText(f'LilCrossBot: {message}')
 

@@ -24,6 +24,6 @@
         "Description": "Find out how rich you are!",
         "Global Cooldown": 5,
         "User Cooldown": 10,
-        "Outputs": ["${userName}, you have ${points}"]
+        "Outputs": ["${userName}, you have ${points} points."]
     }
 }

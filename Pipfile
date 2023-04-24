@@ -8,6 +8,7 @@ twitchio = "*"
 mysql-connector-python = "*"
 pyslobs = "*"
 pyqt5 = "*"
+pytz = "*"
 
 [dev-packages]
 

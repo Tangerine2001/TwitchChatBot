@@ -1,6 +1,4 @@
 {
-    "Global Cooldown Exceptions": ["Chill... someone just called this command. Read it, I'll say the same thing",
-                                    "Yuh"],
-    "User Cooldown Exceptions": ["Bro, you got somewhere to be? Wait like ${userCooldownDiff} seconds then try again.",
-                                 "Yuh2"]
+    "Global Cooldown Exceptions": ["Chill... someone just called this command. Read it, I'll say the same thing"],
+    "User Cooldown Exceptions": ["Bro, you got somewhere to be? Wait like ${userCooldownDiff} seconds then try again."]
 }
